@@ -3,8 +3,8 @@ from django.core.management import BaseCommand, call_command
 from babel.core import Locale
 import openai
 import os
-from utils import extract_code_blocks
-from poutils import split_po_file, merge_po_files
+from django_transhelper.utils import extract_code_blocks
+from django_transhelper.poutils import split_po_file, merge_po_files
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 encoding_name = "cl100k_base"  # GPT-4 uses the cl100k_base encoding

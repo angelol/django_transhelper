@@ -11,6 +11,8 @@ setup(
         "langchain",
         "tiktoken",
         "polib",
+        "babel",
+        "openai",
     ],
     classifiers=[
         "Framework :: Django",
