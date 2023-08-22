@@ -33,7 +33,7 @@ def split_po_file(source_file):
         if not entry.translated() or "fuzzy" in entry.flags:
             if "fuzzy" in entry.flags:
                 entry.msgstr = ""
-                entry.fuzzy = False
+                entry.flags.remove("fuzzy")
             missing_translations_po.append(entry)
 
     source_po = [
