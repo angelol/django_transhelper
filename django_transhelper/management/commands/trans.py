@@ -33,10 +33,12 @@ class Command(BaseCommand):
             ignore=["venv"],
             no_obsolete=True,
             verbosity=0,
+            extensions=["py", "html", "inc", "txt"],
         )
 
         # Read, modify and write back the .po files
         for locale, (code, language_name) in zip(locales, languages):
+            print(f"Translating to {language_name}...")
             po_file_path = os.path.join(
                 settings.BASE_DIR, "locale", locale, "LC_MESSAGES", "django.po"
             )
@@ -63,7 +65,6 @@ class Command(BaseCommand):
 
 
 def translate_content(content, language_name):
-    print(f"Translating to {language_name}...")
     result = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
@@ -73,7 +74,6 @@ def translate_content(content, language_name):
         temperature=0.0,
     )
     translated = extract_code_blocks(result.choices[0].message["content"])
-    # print(translated)
     return translated
 
 
