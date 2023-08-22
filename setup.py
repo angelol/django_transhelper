@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="transhelper",
+    name="django_transhelper",
     description="""Adds the management command `trans` to generate or update .po files for all languages defined in settings.LANGUAGES. Translations will be automatically generated using OpenAI's GPT-4.""",
     version="0.1",
     packages=find_packages(),
