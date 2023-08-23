@@ -9,7 +9,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 encoding_name = "cl100k_base"  # GPT-4 uses the cl100k_base encoding
 text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-    encoding_name=encoding_name, chunk_size=300, chunk_overlap=0
+    encoding_name=encoding_name, chunk_size=2000, chunk_overlap=0
 )
 openai.api_key = settings.OPENAI_API_KEY
 
@@ -77,7 +77,7 @@ def translate_content(content, language_name):
     return translated
 
 
-SYSTEM_MESSAGE = """You are a professional translator that is proficient in all languages and will provide accurate translations of .po files. Please answer with the entire .po file (including preamble comments). The output must be a valid .po file. Remember that when the original string ends in a newline, your translation must also end in a newline. And if the original string does not end in a newline, then your translation should likewise not have a newline at the end. Always put your response in a code block."""
+SYSTEM_MESSAGE = """You are a professional translator that is proficient in all languages and will provide accurate translations of .po files. Please answer with the entire .po file (including preamble comments). The output must be a valid .po file. Remember that when the msgid string ends in a newline, the msgstr must also end in a newline. And if the msgid string does not end in a newline, then the msgstr should likewise not have a newline at the end. Always put your response in a code block."""
 
 
 def convert_locale(language_code):
