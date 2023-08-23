@@ -9,9 +9,18 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 encoding_name = "cl100k_base"  # GPT-4 uses the cl100k_base encoding
 text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-    encoding_name=encoding_name, chunk_size=800, chunk_overlap=0
+    encoding_name=encoding_name, chunk_size=300, chunk_overlap=0
 )
 openai.api_key = settings.OPENAI_API_KEY
+os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY
+
+from openai_multi_client import OpenAIMultiClient
+
+api = OpenAIMultiClient(
+    endpoint="chats", data_template={"model": "gpt-4"}, concurrency=30
+)
+
+from openai_multi_client import OpenAIMultiClient
 
 
 class Command(BaseCommand):
@@ -51,13 +60,37 @@ class Command(BaseCommand):
                 continue
 
             texts = text_splitter.split_text(untranslated)
+            print("Number of chunks:", len(texts))
+
+            def make_requests():
+                for text in texts:
+                    api.request(
+                        data={
+                            "messages": [
+                                {"role": "system", "content": SYSTEM_MESSAGE},
+                                {
+                                    "role": "user",
+                                    "content": f"Translate to {language_name}:\n\n{text}",
+                                },
+                            ],
+                        },
+                        metadata={"language_name": language_name, "text": text},
+                    )
+
+            api.run_request_function(make_requests)
+
             chunks = []
-            for text in texts:
-                # print(f"Translating chunk:\n{text}")
-                chunk = translate_content(text, language_name)
-                chunks.append(chunk)
+            for result in api:
+                response = result.response["choices"][0]["message"]["content"]
+                translated = extract_code_blocks(response)
+                print(translated)
+                chunks.append(translated)
 
             modified_content = "\n\n".join(chunks)
+
+            print("-------------------")
+            print(modified_content)
+            print("-------------------")
 
             merge_po_files(translated, modified_content, po_file_path)
 

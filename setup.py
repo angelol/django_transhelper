@@ -13,6 +13,7 @@ setup(
         "polib",
         "babel",
         "openai",
+        "openai-multi-client",
     ],
     classifiers=[
         "Framework :: Django",
