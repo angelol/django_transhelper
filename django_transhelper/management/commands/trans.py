@@ -9,7 +9,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 encoding_name = "cl100k_base"  # GPT-4 uses the cl100k_base encoding
 text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-    encoding_name=encoding_name, chunk_size=1500, chunk_overlap=0
+    encoding_name=encoding_name, chunk_size=800, chunk_overlap=0
 )
 openai.api_key = settings.OPENAI_API_KEY
 
