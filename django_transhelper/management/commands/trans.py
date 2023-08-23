@@ -16,12 +16,6 @@ os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY
 
 from openai_multi_client import OpenAIMultiClient
 
-api = OpenAIMultiClient(
-    endpoint="chats", data_template={"model": "gpt-4"}, concurrency=30
-)
-
-from openai_multi_client import OpenAIMultiClient
-
 
 class Command(BaseCommand):
     help = "This command generates or updates .po files for all languages defined in settings.LANGUAGES. Translations will be automatically generated using OpenAI's GPT-4."
@@ -62,6 +56,10 @@ class Command(BaseCommand):
             texts = text_splitter.split_text(untranslated)
             print("Number of chunks:", len(texts))
 
+            api = OpenAIMultiClient(
+                endpoint="chats", data_template={"model": "gpt-4"}, concurrency=30
+            )
+
             def make_requests():
                 for text in texts:
                     api.request(
@@ -80,7 +78,12 @@ class Command(BaseCommand):
             api.run_request_function(make_requests)
 
             chunks = []
+            texts_seen = set()
             for result in api:
+                text = result.metadata["text"]
+                if text in texts_seen:
+                    continue
+                texts_seen.add(text)
                 response = result.response["choices"][0]["message"]["content"]
                 translated = extract_code_blocks(response)
                 print(translated)
@@ -91,6 +94,13 @@ class Command(BaseCommand):
             print("-------------------")
             print(modified_content)
             print("-------------------")
+
+            try:
+                call_command("compilemessages", verbosity=0)
+            except Exception as e:
+                # print(e)
+                pass
+            call_command("compilemessages", verbosity=0)
 
             merge_po_files(translated, modified_content, po_file_path)
 

@@ -10,12 +10,16 @@ def merge_po_files(po_file_str1, po_file_str2, output_file_path):
     """po_file_str1 and po_file_str2 are strings containing the contents of the .po files"""
     """output_file_path is the path to the output file"""
     """The output file will be overwritten"""
-    source_po = polib.pofile(output_file_path)
+    source_po = polib.pofile(output_file_path, check_for_duplicates=True)
     metadata = source_po.metadata
-    po1 = polib.pofile(po_file_str1)
-    po2 = polib.pofile(po_file_str2)
+    po1 = polib.pofile(po_file_str1, check_for_duplicates=True)
+    po2 = polib.pofile(po_file_str2, check_for_duplicates=True)
 
-    po1.extend(po2)
+    for entry in po1:
+        # only add entries that don't exist in the source_po
+        if entry.msgid not in [e.msgid for e in source_po]:
+            source_po.append(entry)
+
     po1.metadata = metadata
     po1.save(output_file_path)
 
@@ -24,8 +28,8 @@ def split_po_file(source_file):
     """Split a .po file into two files: one with translated strings and one with untranslated strings"""
     """Returns a tuple of two strings: (translated, untranslated)"""
     """Can be used to get only the untranslated strings from a .po file"""
-    source_po = polib.pofile(source_file)
-    missing_translations_po = polib.POFile()
+    source_po = polib.pofile(source_file, check_for_duplicates=True)
+    missing_translations_po = polib.POFile(check_for_duplicates=True)
 
     for entry in source_po:
         if entry.msgid == "":
@@ -42,7 +46,7 @@ def split_po_file(source_file):
         if entry.msgid != "" and entry.translated() and "fuzzy" not in entry.flags
     ]
 
-    source_po_obj = polib.POFile()
+    source_po_obj = polib.POFile(check_for_duplicates=True)
     for entry in source_po:
         assert entry.msgid != ""
         source_po_obj.append(entry)
